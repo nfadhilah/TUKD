@@ -1,0 +1,54 @@
+﻿@page "/fetchdata"
+@inject HttpClient _http
+
+<PageTitle>Weather forecast</PageTitle>
+
+<MudTable Items="_forecasts"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          Loading="@_loading"
+          LoadingProgressColor="Color.Info"
+          FixedHeader="true">
+    <ToolBarContent>
+        <MudText Typo="Typo.h4">Weather forecast</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Date</MudTh>
+        <MudTh>Temp. (C)</MudTh>
+        <MudTh>Temp. (F)</MudTh>
+        <MudTh>Summary</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date">@context.Date</MudTd>
+        <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
+        <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+        <MudTd DataLabel="Summary">@context.Summary</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private WeatherForecast[]? _forecasts;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true; _forecasts = await _http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        await Task.Delay(3000);
+        _loading = false;
+    }
+
+    public class WeatherForecast
+    {
+        public DateTime Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+
+}

@@ -1,0 +1,18 @@
+﻿@inject ILoadingService _loadingService
+@implements IDisposable
+<MudOverlay Visible="_loadingService.IsLoading" DarkBackground="true" Absolute="true" ZIndex="9999">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        _loadingService.OnLoading += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        _loadingService.OnLoading -= StateHasChanged;
+    }
+}

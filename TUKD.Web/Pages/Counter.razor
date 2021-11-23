@@ -1,0 +1,30 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12"
+             md="12">
+        <MudPaper Class="d-flex flex-column align-center pa-5">
+            <MudText Typo="Typo.h4">Awesome Counter</MudText>
+            <MudPaper Class="pa-12 my-3" Square="true" Elevation="5">
+                <MudText Color="Color.Info"
+                         Typo="Typo.h2">@_currentCount</MudText>
+            </MudPaper>
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Outlined"
+                       OnClick="IncrementCount">Click Me</MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+    private int _currentCount = 0;
+
+    private void IncrementCount()
+    {
+        _currentCount++;
+    }
+}

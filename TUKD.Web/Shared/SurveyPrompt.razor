@@ -1,0 +1,9 @@
+﻿<MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+    @Title Please take <MudLink Target="_blank" Href="https://go.microsoft.com/fwlink/?linkid=2148851" Typo="Typo.body2">our brief survey.</MudLink>
+</MudAlert>
+
+@code {
+    // Demonstrates how a parent component can supply parameters
+    [Parameter]
+    public string? Title { get; set; }
+}

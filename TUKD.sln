@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TUKD.Web", "TUKD.Web\TUKD.Web.csproj", "{4D4E62CE-E4EE-4DB2-A3D6-584EB3AD6386}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TUKD.API", "TUKD.API\TUKD.API.csproj", "{4A0DD1D7-7C85-49EC-A7D1-FAE1C0AC3EB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TUKD.Domain", "TUKD.Domain\TUKD.Domain.csproj", "{C72254DE-2FC3-470F-B537-4AC2370CF15F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D4E62CE-E4EE-4DB2-A3D6-584EB3AD6386}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D4E62CE-E4EE-4DB2-A3D6-584EB3AD6386}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D4E62CE-E4EE-4DB2-A3D6-584EB3AD6386}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D4E62CE-E4EE-4DB2-A3D6-584EB3AD6386}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A0DD1D7-7C85-49EC-A7D1-FAE1C0AC3EB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A0DD1D7-7C85-49EC-A7D1-FAE1C0AC3EB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A0DD1D7-7C85-49EC-A7D1-FAE1C0AC3EB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A0DD1D7-7C85-49EC-A7D1-FAE1C0AC3EB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C72254DE-2FC3-470F-B537-4AC2370CF15F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C72254DE-2FC3-470F-B537-4AC2370CF15F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C72254DE-2FC3-470F-B537-4AC2370CF15F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C72254DE-2FC3-470F-B537-4AC2370CF15F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E93285AE-1F63-4A0B-BF0A-D6CA5E84E24F}
+	EndGlobalSection
+EndGlobal

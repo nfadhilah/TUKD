@@ -1,0 +1,83 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudIcon Icon="@Icons.Custom.Brands.MudBlazor"
+                     Size="Size.Large" />
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            <MudIconButton Icon="@Icons.Material.Outlined.Menu"
+                           Color="Color.Inherit"
+                           Edge="Edge.Start"
+                           OnClick="@((e) => ToggleDrawer())" />
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudText Typo="Typo.h6"
+                     Class="ml-4">
+                TUKD Online
+            </MudText>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs"
+                   Invert="true">
+            <MudText Typo="Typo.subtitle2">TUKD Online</MudText>
+        </MudHidden>
+        <MudSpacer />
+        <MudMenu Direction="Direction.Left"
+                 OffsetX="true"
+                 Dense="true"
+                 Class="mt-1 ml-4">
+            <ActivatorContent>
+                <MudAvatar Image="images/avatars/default_avatar.png" />
+            </ActivatorContent>
+            <ChildContent>
+                <PersonCard Class="mt-n2" />
+                <MudDivider Class="mb-2" />
+                <MudListItem Text="Account"
+                             Icon="@Icons.Material.Outlined.Person"
+                             Href="/personal/account" />
+                <MudListItem Text="Logout"
+                             Icon="@Icons.Material.Outlined.Login"
+                             Href="/pages/authentication/login" />
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawOpen"
+               ClipMode="DrawerClipMode.Always"
+               Elevation="25">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudToolBar DisableGutters="true">
+                <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => ToggleDrawer())" Class="ml-3" />
+                <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+                <MudSpacer />
+            </MudToolBar>
+        </MudHidden>
+        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+
+
+@code {
+    bool _drawOpen = true;
+
+    void ToggleDrawer()
+    {
+        _drawOpen = !_drawOpen;
+    }
+
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Personal", href: "#"),
+        new BreadcrumbItem("Dashboard", href: "#"),
+    };
+}
