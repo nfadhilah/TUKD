@@ -1,7 +1,20 @@
 ﻿@inject ILoadingService _loadingService
 @implements IDisposable
-<MudOverlay Visible="_loadingService.IsLoading" DarkBackground="true" Absolute="true" ZIndex="9999">
-    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+
+<style>
+    .overlay-img {
+        width: 100%;
+        max-width: 200px;
+        height: auto
+    }
+</style>
+
+<MudOverlay Visible="_loadingService.IsLoading" DarkBackground="true" ZIndex="9999">
+    @* <MudProgressCircular Color="Color.Warning" Indeterminate="true" /> *@
+    <div class="d-flex flex-column align-center">
+        <img class="mb-5 overlay-img" src="images/illustrations/undraw_loading_re_5axr.svg" />
+        <MudText Typo="Typo.body2">Loading...</MudText>
+    </div>
 </MudOverlay>
 
 @code

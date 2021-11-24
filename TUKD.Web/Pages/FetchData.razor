@@ -1,7 +1,19 @@
 ﻿@page "/fetchdata"
 @inject HttpClient _http
+@inject ILoadingService _loadingService
 
-<PageTitle>Weather forecast</PageTitle>
+<style>
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        display: contents;
+    }
+</style>
+
+
+<PageTitle>Weather Forecast</PageTitle>
+
+
+<MudText Typo="Typo.h3"
+         Class="my-6">Weather Forecast</MudText>
 
 <MudTable Items="_forecasts"
           Hover="true"
@@ -9,8 +21,41 @@
           Loading="@_loading"
           LoadingProgressColor="Color.Info"
           FixedHeader="true">
+
     <ToolBarContent>
-        <MudText Typo="Typo.h4">Weather forecast</MudText>
+        <MudGrid Class="pa-3">
+            <MudItem xs="12"
+                     sm="12"
+                     md="6">
+                <MudInput @bind-Value="_searchString"
+                          Placeholder="Search..."
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Adornment="Adornment.Start"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="12"
+                     sm="12"
+                     md="6">
+                <div class="d-flex justify-md-end justify-sm-start">
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Transparent"
+                               StartIcon="@Icons.Material.Outlined.FilterAlt"
+                               Class="mr-1"
+                               Size="Size.Large">Filter</MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Error"
+                               Class="mx-1"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               Size="Size.Large">Delete</MudButton>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Class="mx-1"
+                               Size="Size.Large">Add</MudButton>
+                </div>
+            </MudItem>
+        </MudGrid>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Date</MudTh>
@@ -32,12 +77,15 @@
 @code {
     private WeatherForecast[]? _forecasts;
     private bool _loading;
+    private string _searchString = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         _loading = true; _forecasts = await _http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        _loadingService.SetLoading();
         await Task.Delay(3000);
         _loading = false;
+        _loadingService.StopLoading();
     }
 
     public class WeatherForecast
