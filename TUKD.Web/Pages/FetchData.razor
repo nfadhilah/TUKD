@@ -86,14 +86,14 @@
         <MudTd DataLabel="Summary">@context.Summary</MudTd>
         <MudTd DataLabel="Actions">
             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                <MudMenuItem>
+                <MudMenuItem OnClick="() => OnEdit(context)">
                     <div class="d-flex align-center">
                         <MudIcon Icon="@Icons.Material.Filled.Update"
                                  Color="Color.Info"
                                  Class="mx-1" />
                         <MudText Color="Color.Info"
                                  Class="mx-1">
-                            Update
+                            Edit
                         </MudText>
                     </div>
                 </MudMenuItem>
@@ -167,20 +167,41 @@
         return await dialog.Result;
     }
 
+    private async Task<DialogResult> ShowFormDialog(string title, WeatherForecast? context = null)
+    {
+        var dialogParameters = new DialogParameters{["Model"] = context};
+        var dialogOptions = new DialogOptions
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small,
+            DisableBackdropClick = true,
+            CloseButton = true
+        };
+        var dialog = _dialogService.Show<FetchDataForm>(title, dialogParameters, dialogOptions);
+        return await dialog.Result;
+    }
+
     private async Task OnAdd()
     {
-        var dialog = _dialogService.Show<FetchDataForm>("Add Data", new DialogOptions
-            {
-                FullWidth = true,
-                MaxWidth = MaxWidth.Small,
-                DisableBackdropClick = true,
-                CloseButton = true
-            });
-        var result = await dialog.Result;
+        var result = await ShowFormDialog("Add Data");
         if (!result.Cancelled)
         {
             _forecasts?.Add((WeatherForecast)result.Data);
             _snackbar.Add("Data has been added successfully", Severity.Success);
+        }
+    }
+
+    private async Task OnEdit(WeatherForecast context)
+    {
+        var result = await ShowFormDialog("Edit Data", context);
+        if (!result.Cancelled)
+        {
+            _loadingService.SetLoading();
+            await Task.Delay(2000);
+            var updatedIndex = _forecasts!.IndexOf(context);
+            _forecasts![updatedIndex] = (WeatherForecast)result.Data;
+            _loadingService.StopLoading();
+            _snackbar.Add("Data has been updated successfully", Severity.Success);
         }
     }
 
