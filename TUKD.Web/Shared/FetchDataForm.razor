@@ -1,0 +1,83 @@
+﻿@using TUKD.Web.Pages
+@using System.Globalization
+@implements IDisposable
+<MudDialog>
+    <DialogContent>
+        <EditForm EditContext="@_editContext"
+                  id="form"
+                  OnValidSubmit="OnSubmit">
+            <DataAnnotationsValidator />
+            <MudDatePicker Label="Date"
+                           @bind-Date="_model.Date"
+                           Variant="Variant.Outlined"
+                           For="() => _model.Date" Margin="Margin.Dense" Class="my-4" DateFormat="dd/MM/yyyy"  />
+            <MudTextField InputType="InputType.Number"
+                          Label="Temp. (C)"
+                          Variant="Variant.Outlined"
+                          @bind-Value="_model.TemperatureC"
+                          For="() => _model.TemperatureC" Margin="Margin.Dense" Class="my-4" />
+            <MudSelect T="string"
+                       Label="Summary"
+                       Class="my-1"
+                       @bind-Value="_model.Summary"
+                       For="() => _model.Summary"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (var item in _summaries)
+                {
+                    <MudSelectItem Value="item" />
+                }
+
+            </MudSelect>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnCancel">Cancel</MudButton>
+        <MudButton form="form"
+                   Class="mr-4"
+                   Variant="Variant.Filled"
+                   ButtonType="ButtonType.Submit"
+                   Disabled="_formInvalid"
+                   Color="Color.Primary">
+            Submit
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    EditContext? _editContext;
+    private readonly FetchData.WeatherForecast _model = new FetchData.WeatherForecast();
+    bool _formInvalid = true;
+    readonly List<string> _summaries = new() { "Balmy", "Bracing", "Chilly", "Freezing" };
+
+    [CascadingParameter]
+    public MudDialogInstance? MudDialogInstance { get; set; }
+
+    void OnCancel() => MudDialogInstance?.Cancel();
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_model);
+        _editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void OnSubmit()
+    {
+        MudDialogInstance?.Close(_editContext?.Model);
+    }
+
+    public void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        if (_editContext is not null)
+        {
+            _formInvalid = !_editContext.Validate();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_editContext is not null)
+            _editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+}

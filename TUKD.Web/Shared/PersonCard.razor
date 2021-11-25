@@ -1,4 +1,7 @@
-﻿<MudCard Elevation="0" Square="true" Class="@Class" Style="@Style">
+﻿<MudCard Elevation="0"
+         Square="true"
+         Class="@Class"
+         Style="@Style">
     <MudCardHeader>
         <CardHeaderAvatar>
             <MudAvatar Image="images/avatars/default_avatar.png" />
@@ -11,6 +14,11 @@
 </MudCard>
 
 @code {
-    [Parameter] public string Class { get; set; }
-    [Parameter] public string Style { get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
 }

@@ -54,17 +54,20 @@
     <MudMainContent>
         <MudHidden Breakpoint="Breakpoint.SmAndDown">
             <MudToolBar DisableGutters="true">
-                <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => ToggleDrawer())" Class="ml-3" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Menu"
+                               Color="Color.Inherit"
+                               OnClick="@((e) => ToggleDrawer())"
+                               Class="ml-3" />
                 <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
                 <MudSpacer />
             </MudToolBar>
         </MudHidden>
-        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+        <MudContainer MaxWidth="MaxWidth.False"
+                      Class="mt-4">
             @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>
-
 
 
 @code {
@@ -75,9 +78,10 @@
         _drawOpen = !_drawOpen;
     }
 
-    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
-    {
-        new BreadcrumbItem("Personal", href: "#"),
-        new BreadcrumbItem("Dashboard", href: "#"),
-    };
+    private readonly List<BreadcrumbItem> _items = new()
+        {
+            new BreadcrumbItem("Personal", href: "#"),
+            new BreadcrumbItem("Dashboard", href: "#"),
+        };
+
 }

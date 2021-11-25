@@ -1,7 +1,11 @@
 ﻿@page "/fetchdata"
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Mime
 @inject HttpClient _http
 @inject ILoadingService _loadingService
-
+@inject IDialogService _dialogService
+@inject IJSRuntime _js
+@inject ISnackbar _snackbar
 <style>
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
         display: contents;
@@ -9,17 +13,18 @@
 </style>
 
 
-<PageTitle>Weather Forecast</PageTitle>
+<PageTitle>Daftar Rekanan</PageTitle>
 
 
 <MudText Typo="Typo.h3"
-         Class="my-6">Weather Forecast</MudText>
+         Class="my-6">
+    Daftar Rekanan
+</MudText>
 
 <MudTable Items="_forecasts"
-          Hover="true"
           Breakpoint="Breakpoint.Sm"
-          Loading="@_loading"
-          LoadingProgressColor="Color.Info"
+          MultiSelection="true"
+          @bind-SelectedItems="_selectedItems"
           FixedHeader="true">
 
     <ToolBarContent>
@@ -29,6 +34,7 @@
                      md="6">
                 <MudInput @bind-Value="_searchString"
                           Placeholder="Search..."
+                          asd
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           Adornment="Adornment.Start"
                           Variant="Variant.Outlined"
@@ -42,17 +48,26 @@
                                Color="Color.Transparent"
                                StartIcon="@Icons.Material.Outlined.FilterAlt"
                                Class="mr-1"
-                               Size="Size.Large">Filter</MudButton>
+                               Size="Size.Large">
+                        Filter
+                    </MudButton>
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Error"
                                Class="mx-1"
                                StartIcon="@Icons.Material.Filled.Delete"
-                               Size="Size.Large">Delete</MudButton>
+                               Disabled="!_selectedItems.Any()"
+                               @onclick="Delete"
+                               Size="Size.Large">
+                        Delete
+                    </MudButton>
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Add"
                                Class="mx-1"
-                               Size="Size.Large">Add</MudButton>
+                               OnClick="OnAdd"
+                               Size="Size.Large">
+                        Add
+                    </MudButton>
                 </div>
             </MudItem>
         </MudGrid>
@@ -62,12 +77,39 @@
         <MudTh>Temp. (C)</MudTh>
         <MudTh>Temp. (F)</MudTh>
         <MudTh>Summary</MudTh>
+        <MudTh>Action</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Date">@context.Date</MudTd>
-        <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
-        <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+        <MudTd DataLabel="Temperature (C)">@context.TemperatureC</MudTd>
+        <MudTd DataLabel="Temperature (F)">@context.TemperatureF</MudTd>
         <MudTd DataLabel="Summary">@context.Summary</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                <MudMenuItem>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Update"
+                                 Color="Color.Info"
+                                 Class="mx-1" />
+                        <MudText Color="Color.Info"
+                                 Class="mx-1">
+                            Update
+                        </MudText>
+                    </div>
+                </MudMenuItem>
+                <MudMenuItem OnClick="() => OnDelete(context)">
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete"
+                                 Color="Color.Error"
+                                 Class="mx-1" />
+                        <MudText Color="Color.Error"
+                                 Class="mx-1">
+                            Delete
+                        </MudText>
+                    </div>
+                </MudMenuItem>
+            </MudMenu>
+        </MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
@@ -75,28 +117,83 @@
 </MudTable>
 
 @code {
-    private WeatherForecast[]? _forecasts;
-    private bool _loading;
+    private List<WeatherForecast>? _forecasts;
     private string _searchString = string.Empty;
+    private HashSet<WeatherForecast> _selectedItems = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _loading = true; _forecasts = await _http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        _forecasts = await _http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json");
         _loadingService.SetLoading();
-        await Task.Delay(3000);
-        _loading = false;
+        await Task.Delay(2000);
         _loadingService.StopLoading();
     }
 
     public class WeatherForecast
     {
-        public DateTime Date { get; set; }
+        [Required]
+        public DateTime? Date { get; set; } = DateTime.UtcNow;
 
         public int TemperatureC { get; set; }
 
+        [Required]
         public string? Summary { get; set; }
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 
+    private async Task Delete()
+    {
+        var result = await ShowDeleteConfirmation();
+        if (!result.Cancelled)
+        {
+            await _js.InvokeVoidAsync("console.log", _selectedItems);
+            _loadingService.SetLoading();
+            await Task.Delay(2000);
+            foreach (var weatherForecast in _selectedItems)
+            {
+                _forecasts?.Remove(weatherForecast);
+            }
+            _snackbar.Add("Data has been deleted successfully", Severity.Success);
+        }
+        _loadingService.StopLoading();
+        _selectedItems.Clear();
+    }
+
+    private async Task<DialogResult> ShowDeleteConfirmation()
+    {
+        var dialogParameters = new DialogParameters { ["ContentText"] = "Are you sure want to delete?" };
+        var dialog = _dialogService.Show<ConfirmationDialog>("Delete Confirmation", dialogParameters, new DialogOptions { FullWidth = true, MaxWidth = MaxWidth.ExtraSmall });
+        return await dialog.Result;
+    }
+
+    private async Task OnAdd()
+    {
+        var dialog = _dialogService.Show<FetchDataForm>("Add Data", new DialogOptions
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small,
+                DisableBackdropClick = true,
+                CloseButton = true
+            });
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            _forecasts?.Add((WeatherForecast)result.Data);
+            _snackbar.Add("Data has been added successfully", Severity.Success);
+        }
+    }
+
+    private async Task OnDelete(WeatherForecast context)
+    {
+        var result = await ShowDeleteConfirmation();
+        if (!result.Cancelled)
+        {
+            _loadingService.SetLoading();
+            await Task.Delay(2000);
+            _forecasts?.Remove(context);
+            _loadingService.StopLoading();
+            _snackbar.Add("Data has been deleted successfully", Severity.Success);
+        }
+    }
 }
