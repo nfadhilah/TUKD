@@ -48,7 +48,7 @@
     public MudDialogInstance? MudDialogInstance { get; set; }
 
     [Parameter]
-    public FetchData.WeatherForecast? Model { get; set; }
+    public WeatherForecast? Model { get; set; }
 
     readonly List<string> _summaries = new() { "Balmy", "Bracing", "Chilly", "Freezing" };
 
@@ -56,7 +56,7 @@
 
     protected override void OnInitialized()
     {
-        _editContext = new EditContext(Model ??= new FetchData.WeatherForecast());
+        _editContext = new EditContext(Model ??= new WeatherForecast());
     }
 
     private void OnSubmit()

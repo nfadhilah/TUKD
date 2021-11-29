@@ -1,0 +1,45 @@
+﻿@using TUKD.Web.Pages
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="Model"
+                  id="form"
+                  OnSubmit="OnSubmit">
+            <MudSelect T="string"
+                       Label="Summary"
+                       Class="my-1"
+                       @bind-Value="Model.Summary"
+                       For="() => Model.Summary"
+                       Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (var item in _summaries)
+                {
+                    <MudSelectItem Value="item" />
+                }
+
+            </MudSelect>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnCancel">Cancel</MudButton>
+        <MudButton form="form"
+                   Class="mr-4"
+                   Variant="Variant.Filled"
+                   ButtonType="ButtonType.Submit"
+                   Color="Color.Primary">
+            Submit
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    readonly List<string> _summaries = new() { "Balmy", "Bracing", "Chilly", "Freezing" };
+
+    [CascadingParameter]
+    public MudDialogInstance? MudDialogInstance { get; set; }
+
+    public WeatherForecastFilter Model { get; set; } = new();
+
+    void OnCancel() => MudDialogInstance?.Cancel();
+
+    void OnSubmit() => MudDialogInstance?.Close(Model);
+}

@@ -21,4 +21,8 @@
 		<Folder Include="wwwroot\css\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\TUKD.Domain\TUKD.Domain.csproj" />
+	</ItemGroup>
+
 </Project>

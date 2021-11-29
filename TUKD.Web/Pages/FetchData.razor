@@ -1,11 +1,14 @@
 ﻿@page "/fetchdata"
-@using System.ComponentModel.DataAnnotations
-@using System.Net.Mime
+@using TUKD.Web.ViewModels
+@using System.ComponentModel
 @inject HttpClient _http
 @inject ILoadingService _loadingService
 @inject IDialogService _dialogService
 @inject IJSRuntime _js
 @inject ISnackbar _snackbar
+@inject WeatherForecastViewModel _vm
+@implements IDisposable
+
 <style>
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
         display: contents;
@@ -21,24 +24,31 @@
     Daftar Rekanan
 </MudText>
 
-<MudTable Items="_forecasts"
+<MudTable Items="_vm.WeatherForecastList"
           Breakpoint="Breakpoint.Sm"
           MultiSelection="true"
-          @bind-SelectedItems="_selectedItems"
+          Hover="true"
+          @bind-SelectedItems="_vm.SelectedItems"
+          Filter="forecast => _vm.OnSearch(forecast)"
           FixedHeader="true">
-
     <ToolBarContent>
         <MudGrid Class="pa-3">
             <MudItem xs="12"
                      sm="12"
                      md="6">
-                <MudInput @bind-Value="_searchString"
-                          Placeholder="Search..."
-                          asd
-                          AdornmentIcon="@Icons.Material.Filled.Search"
-                          Adornment="Adornment.Start"
-                          Variant="Variant.Outlined"
-                          Margin="Margin.Dense" />
+                <MudGrid>
+                    <MudItem md="6">
+                        <MudTextField @bind-Value="_vm.SearchString"
+                                      Placeholder="Search..."
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      Adornment="Adornment.Start"
+                                      Variant="Variant.Outlined"
+                                      Clearable="true"
+                                      Immediate="true"
+                                      DebounceInterval="1000"
+                                      Margin="Margin.Dense" />
+                    </MudItem>
+                </MudGrid>
             </MudItem>
             <MudItem xs="12"
                      sm="12"
@@ -48,6 +58,7 @@
                                Color="Color.Transparent"
                                StartIcon="@Icons.Material.Outlined.FilterAlt"
                                Class="mr-1"
+                               OnClick="async () => await _vm.ShowFilterForm()"
                                Size="Size.Large">
                         Filter
                     </MudButton>
@@ -55,8 +66,8 @@
                                Color="Color.Error"
                                Class="mx-1"
                                StartIcon="@Icons.Material.Filled.Delete"
-                               Disabled="!_selectedItems.Any()"
-                               @onclick="Delete"
+                               Disabled="!_vm.SelectedItems.Any()"
+                               @onclick="async () => await _vm.DeleteWeatherForecast()"
                                Size="Size.Large">
                         Delete
                     </MudButton>
@@ -64,11 +75,29 @@
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Add"
                                Class="mx-1"
-                               OnClick="OnAdd"
+                               OnClick="async () => await _vm.AddWeatherForecast()"
                                Size="Size.Large">
                         Add
                     </MudButton>
                 </div>
+            </MudItem>
+            <MudItem md="12">
+                @if (_vm.FilterChips.Any())
+                {
+                    <MudChipSet>
+                        @foreach (var chip in _vm.FilterChips)
+                        {
+                            <MudChip Variant="Variant.Outlined"
+                             Color="Color.Success"
+                             OnClose="_vm.OnCloseChips"
+                             Text="@chip" />
+                        }
+                        <MudChip Variant="Variant.Filled"
+                             Color="Color.Error"
+                             Text="Clear Filters"
+                             OnClick="async() => await _vm.OnClearChips()" />
+                    </MudChipSet>
+                }
             </MudItem>
         </MudGrid>
     </ToolBarContent>
@@ -86,7 +115,7 @@
         <MudTd DataLabel="Summary">@context.Summary</MudTd>
         <MudTd DataLabel="Actions">
             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                <MudMenuItem OnClick="() => OnEdit(context)">
+                <MudMenuItem OnClick="async () => await _vm.UpdateWeatherForecast(context)">
                     <div class="d-flex align-center">
                         <MudIcon Icon="@Icons.Material.Filled.Update"
                                  Color="Color.Info"
@@ -97,7 +126,7 @@
                         </MudText>
                     </div>
                 </MudMenuItem>
-                <MudMenuItem OnClick="() => OnDelete(context)">
+                <MudMenuItem OnClick="async () => await _vm.DeleteWeatherForecast(context)">
                     <div class="d-flex align-center">
                         <MudIcon Icon="@Icons.Material.Filled.Delete"
                                  Color="Color.Error"
@@ -117,104 +146,19 @@
 </MudTable>
 
 @code {
-    private List<WeatherForecast>? _forecasts;
-    private string _searchString = string.Empty;
-    private HashSet<WeatherForecast> _selectedItems = new();
-
     protected override async Task OnInitializedAsync()
     {
-        _forecasts = await _http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json");
-        _loadingService.SetLoading();
-        await Task.Delay(2000);
-        _loadingService.StopLoading();
+        _vm.PropertyChanged += OnPropertyChangeHandler;
+        await _vm.GetWeatherForecasts();
     }
 
-    public class WeatherForecast
+    async void OnPropertyChangeHandler(object? sender, PropertyChangedEventArgs? e)
     {
-        [Required]
-        public DateTime? Date { get; set; } = DateTime.UtcNow;
-
-        public int TemperatureC { get; set; }
-
-        [Required]
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task Delete()
+    public void Dispose()
     {
-        var result = await ShowDeleteConfirmation();
-        if (!result.Cancelled)
-        {
-            await _js.InvokeVoidAsync("console.log", _selectedItems);
-            _loadingService.SetLoading();
-            await Task.Delay(2000);
-            foreach (var weatherForecast in _selectedItems)
-            {
-                _forecasts?.Remove(weatherForecast);
-            }
-            _snackbar.Add("Data has been deleted successfully", Severity.Success);
-        }
-        _loadingService.StopLoading();
-        _selectedItems.Clear();
-    }
-
-    private async Task<DialogResult> ShowDeleteConfirmation()
-    {
-        var dialogParameters = new DialogParameters { ["ContentText"] = "Are you sure want to delete?" };
-        var dialog = _dialogService.Show<ConfirmationDialog>("Delete Confirmation", dialogParameters, new DialogOptions { FullWidth = true, MaxWidth = MaxWidth.ExtraSmall });
-        return await dialog.Result;
-    }
-
-    private async Task<DialogResult> ShowFormDialog(string title, WeatherForecast? context = null)
-    {
-        var dialogParameters = new DialogParameters{["Model"] = context};
-        var dialogOptions = new DialogOptions
-        {
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small,
-            DisableBackdropClick = true,
-            CloseButton = true
-        };
-        var dialog = _dialogService.Show<FetchDataForm>(title, dialogParameters, dialogOptions);
-        return await dialog.Result;
-    }
-
-    private async Task OnAdd()
-    {
-        var result = await ShowFormDialog("Add Data");
-        if (!result.Cancelled)
-        {
-            _forecasts?.Add((WeatherForecast)result.Data);
-            _snackbar.Add("Data has been added successfully", Severity.Success);
-        }
-    }
-
-    private async Task OnEdit(WeatherForecast context)
-    {
-        var result = await ShowFormDialog("Edit Data", context);
-        if (!result.Cancelled)
-        {
-            _loadingService.SetLoading();
-            await Task.Delay(2000);
-            var updatedIndex = _forecasts!.IndexOf(context);
-            _forecasts![updatedIndex] = (WeatherForecast)result.Data;
-            _loadingService.StopLoading();
-            _snackbar.Add("Data has been updated successfully", Severity.Success);
-        }
-    }
-
-    private async Task OnDelete(WeatherForecast context)
-    {
-        var result = await ShowDeleteConfirmation();
-        if (!result.Cancelled)
-        {
-            _loadingService.SetLoading();
-            await Task.Delay(2000);
-            _forecasts?.Remove(context);
-            _loadingService.StopLoading();
-            _snackbar.Add("Data has been deleted successfully", Severity.Success);
-        }
+        _vm.PropertyChanged -= OnPropertyChangeHandler;
     }
 }
