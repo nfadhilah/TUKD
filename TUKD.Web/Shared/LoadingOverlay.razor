@@ -1,4 +1,6 @@
-﻿@inject ILoadingService _loadingService
+﻿@inject LoadingOverlayViewModel _vm
+
+@using System.ComponentModel
 @implements IDisposable
 
 <style>
@@ -9,7 +11,7 @@
     }
 </style>
 
-<MudOverlay Visible="_loadingService.IsLoading" DarkBackground="true" ZIndex="9999">
+<MudOverlay Visible="_vm.IsBusy" DarkBackground="true" ZIndex="9999">
     @* <MudProgressCircular Color="Color.Warning" Indeterminate="true" /> *@
     <div class="d-flex flex-column align-center">
         <img class="mb-5 overlay-img" src="images/illustrations/undraw_loading_re_5axr.svg" />
@@ -21,11 +23,16 @@
 {
     protected override void OnInitialized()
     {
-        _loadingService.OnLoading += StateHasChanged;
+        _vm.PropertyChanged += OnPropertyChanged;
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        StateHasChanged();
     }
 
     public void Dispose()
     {
-        _loadingService.OnLoading -= StateHasChanged;
+        _vm.PropertyChanged -= OnPropertyChanged;
     }
 }

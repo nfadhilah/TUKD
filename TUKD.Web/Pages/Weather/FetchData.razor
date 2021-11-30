@@ -1,0 +1,115 @@
+﻿@page "/fetchdata"
+@using System.ComponentModel
+@inject HttpClient _http
+@inject IDialogService _dialogService
+@inject IJSRuntime _js
+@inject ISnackbar _snackbar
+@inject WeatherForecastViewModel _vm
+@implements IDisposable
+<style>
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        display: contents;
+    }
+</style>
+
+
+<PageTitle>Daftar Rekanan</PageTitle>
+
+
+<MudText Typo="Typo.h3" Class="my-6">
+    Daftar Rekanan
+</MudText>
+
+<MudTable Items="_vm.MainList" Breakpoint="Breakpoint.Sm" MultiSelection="true" Hover="true" @bind-SelectedItems="_vm.SelectedItems" Filter="forecast => _vm.OnSearch(forecast)" FixedHeader="true">
+    <ToolBarContent>
+        <MudGrid Class="pa-3">
+            <MudItem xs="12" sm="12" md="6">
+                <MudGrid>
+                    <MudItem md="6">
+                        <MudTextField @bind-Value="_vm.SearchString" Placeholder="Search..." AdornmentIcon="@Icons.Material.Filled.Search" Adornment="Adornment.Start" Variant="Variant.Outlined" Clearable="true" Immediate="true" DebounceInterval="1000" Margin="Margin.Dense" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="6">
+                <div class="d-flex justify-md-end justify-sm-start">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Transparent" StartIcon="@Icons.Material.Outlined.FilterAlt" Class="mr-1" OnClick="async () => await _vm.ShowFilterForm()" Size="Size.Large">
+                        Filter
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="mx-1" StartIcon="@Icons.Material.Filled.Delete" Disabled="!_vm.SelectedItems.Any()" @onclick="async () => await _vm.DeleteAll()" Size="Size.Large">
+                        Delete
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Class="mx-1" OnClick="async () => await _vm.Add()" Size="Size.Large">
+                        Add
+                    </MudButton>
+                </div>
+            </MudItem>
+            <MudItem md="12">
+                @if (_vm.FilterChips.Any())
+                {
+                    <MudChipSet>
+                        @foreach (var chip in _vm.FilterChips)
+                        {
+                            <MudChip Variant="Variant.Outlined" Color="Color.Success" OnClose="async (c) => await _vm.OnCloseChips(c)" Text="@chip" />
+                        }
+                        <MudChip Variant="Variant.Filled" Color="Color.Error" Text="Clear Filters" OnClick="async () => await _vm.OnClearChips()" />
+                    </MudChipSet>
+                }
+            </MudItem>
+        </MudGrid>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Date</MudTh>
+        <MudTh>Temp. (C)</MudTh>
+        <MudTh>Temp. (F)</MudTh>
+        <MudTh>Summary</MudTh>
+        <MudTh>Action</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date">@context.Date</MudTd>
+        <MudTd DataLabel="Temperature (C)">@context.TemperatureC</MudTd>
+        <MudTd DataLabel="Temperature (F)">@context.TemperatureF</MudTd>
+        <MudTd DataLabel="Summary">@context.Summary</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                <MudMenuItem OnClick="async () => await _vm.Update(context)">
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Update" Color="Color.Info" Class="mx-1" />
+                        <MudText Color="Color.Info" Class="mx-1">
+                            Edit
+                        </MudText>
+                    </div>
+                </MudMenuItem>
+                <MudMenuItem OnClick="async () => await _vm.Delete(context)">
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="mx-1" />
+                        <MudText Color="Color.Error" Class="mx-1">
+                            Delete
+                        </MudText>
+                    </div>
+                </MudMenuItem>
+            </MudMenu>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        _vm.PropertyChanged += OnPropertyChangeHandler;
+        await _vm.GetAll();
+    }
+
+    async void OnPropertyChangeHandler(object? sender, PropertyChangedEventArgs? e)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _vm.PropertyChanged -= OnPropertyChangeHandler;
+    }
+
+}

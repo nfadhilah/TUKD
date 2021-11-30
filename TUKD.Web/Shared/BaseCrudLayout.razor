@@ -1,0 +1,101 @@
+﻿@using System.ComponentModel
+@implements IDisposable
+@typeparam T where T : BaseViewModel, IBaseCrudLayout<T>
+<style>
+    .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
+        display: contents;
+    }
+</style>
+
+
+<PageTitle>Daftar Rekanan</PageTitle>
+
+
+<MudText Typo="Typo.h3" Class="my-6">
+    Daftar Rekanan
+</MudText>
+
+<MudTable Items="VM.MainList" Breakpoint="Breakpoint.Sm" MultiSelection="true" Hover="true" @bind-SelectedItems="VM.SelectedItems" Filter="forecast => VM.OnSearch(forecast)" FixedHeader="true">
+    <ToolBarContent>
+        <MudGrid Class="pa-3">
+            <MudItem xs="12" sm="12" md="6">
+                <MudGrid>
+                    <MudItem md="6">
+                        <MudTextField @bind-Value="VM.SearchString" Placeholder="Search..." AdornmentIcon="@Icons.Material.Filled.Search" Adornment="Adornment.Start" Variant="Variant.Outlined" Clearable="true" Immediate="true" DebounceInterval="1000" Margin="Margin.Dense" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="6">
+                <div class="d-flex justify-md-end justify-sm-start">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Transparent" StartIcon="@Icons.Material.Outlined.FilterAlt" Class="mr-1" OnClick="async () => await VM.ShowFilterForm()" Size="Size.Large">
+                        Filter
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="mx-1" StartIcon="@Icons.Material.Filled.Delete" Disabled="!VM.SelectedItems.Any()" @onclick="async () => await VM.DeleteAll()" Size="Size.Large">
+                        Delete
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Class="mx-1" OnClick="async () => await VM.Add()" Size="Size.Large">
+                        Add
+                    </MudButton>
+                </div>
+            </MudItem>
+            <MudItem md="12">
+                @if (VM.FilterChips.Any())
+                {
+                    <MudChipSet>
+                        @foreach (var chip in VM.FilterChips)
+                        {
+                            <MudChip Variant="Variant.Outlined" Color="Color.Success" OnClose="async (c) => await VM.OnCloseChips(c)" Text="@chip" />
+                        }
+                        <MudChip Variant="Variant.Filled" Color="Color.Error" Text="Clear Filters" OnClick="async () => await VM.OnClearChips()" />
+                    </MudChipSet>
+                }
+            </MudItem>
+        </MudGrid>
+    </ToolBarContent>
+    <HeaderContent>
+        @if (HeaderContentChild != null)
+        {
+            @HeaderContentChild
+        }
+    </HeaderContent>
+    <RowTemplate>
+        @if (RowTemplateChild != null)
+        {
+            @RowTemplateChild
+        }
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    [Parameter]
+    public T? VM { get; set; }
+
+    [Parameter]
+    public RenderFragment? HeaderContentChild { get; set; }
+
+    [Parameter]
+    public RenderFragment? RowTemplateChild { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (VM != null)
+        {
+            VM.PropertyChanged += OnPropertyChangeHandler;
+            await VM.GetAll();
+        }
+    }
+
+    async void OnPropertyChangeHandler(object? sender, PropertyChangedEventArgs? e)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if (VM != null) VM.PropertyChanged -= OnPropertyChangeHandler;
+    }
+
+}

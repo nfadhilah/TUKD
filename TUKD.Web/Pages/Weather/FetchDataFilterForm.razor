@@ -1,5 +1,4 @@
-﻿@using TUKD.Web.Pages
-<MudDialog>
+﻿<MudDialog>
     <DialogContent>
         <EditForm Model="Model"
                   id="form"
@@ -37,7 +36,7 @@
     [CascadingParameter]
     public MudDialogInstance? MudDialogInstance { get; set; }
 
-    public WeatherForecastFilter Model { get; set; } = new();
+    public WeatherForecast Model { get; set; } = new();
 
     void OnCancel() => MudDialogInstance?.Cancel();
 

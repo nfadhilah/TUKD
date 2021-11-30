@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TUKD.Domain
+namespace TUKD.Web.ViewModels
 {
-    public class WeatherForecastFilter
+    public class LoadingOverlayViewModel : BaseViewModel
     {
-        public string? Summary { get; set; }
     }
 }
