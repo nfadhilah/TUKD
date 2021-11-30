@@ -8,7 +8,7 @@ using TUKD.Web.Shared;
 
 namespace TUKD.Web.ViewModels;
 
-public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel, IBaseCrudLayout<T>
+public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel
     where T : class where TF : ComponentBase, ICommonDialogForm<T>
 {
     private readonly HttpClient _http;
@@ -63,7 +63,6 @@ public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel, IBas
     public virtual async Task GetAll()
     {
         _loadingVm.IsBusy = true;
-        await Task.Delay(2000);
         var response = await _http.GetFromJsonAsync<List<T>>("sample-data/weather.json");
         MainList = new ObservableCollection<T>(response ?? new List<T>());
         _loadingVm.IsBusy = false;
@@ -75,7 +74,6 @@ public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel, IBas
         if (!result.Cancelled)
         {
             _loadingVm.IsBusy = true;
-            await Task.Delay(2000);
             MainList?.Add((T)result.Data);
             _snackbar.Add("Data has been added successfully", Severity.Success);
             _loadingVm.IsBusy = false;
@@ -88,7 +86,6 @@ public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel, IBas
         if (!result.Cancelled)
         {
             _loadingVm.IsBusy = true;
-            await Task.Delay(2000);
             var index = MainList?.IndexOf(context);
             if (index.HasValue) MainList![index.Value] = (T)result.Data;
             _loadingVm.IsBusy = false;
@@ -102,7 +99,6 @@ public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel, IBas
         if (!result.Cancelled)
         {
             _loadingVm.IsBusy = true;
-            await Task.Delay(2000);
             MainList?.Remove(weatherForecast);
             _snackbar.Add("Data has been deleted successfully", Severity.Success);
             _loadingVm.IsBusy = false;
@@ -116,7 +112,6 @@ public abstract class BaseSimpleCrudLayoutViewModel<T, TF> : BaseViewModel, IBas
         if (!result.Cancelled)
         {
             _loadingVm.IsBusy = true;
-            await Task.Delay(2000);
             foreach (var item in SelectedItems)
             {
                 MainList?.Remove(item);

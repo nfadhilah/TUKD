@@ -1,6 +1,7 @@
 ﻿@using System.ComponentModel
-@implements IDisposable
-@typeparam T where T : BaseViewModel, IBaseCrudLayout<T>
+@typeparam T where T : class
+@typeparam TF where TF : ComponentBase, ICommonDialogForm<T>
+
 <style>
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
         display: contents;
@@ -57,12 +58,33 @@
         {
             @HeaderContentChild
         }
+        <MudTh>Action</MudTh>
     </HeaderContent>
     <RowTemplate>
         @if (RowTemplateChild != null)
         {
-            @RowTemplateChild
+            @RowTemplateChild(context)
         }
+        <MudTd DataLabel="Actions">
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                <MudMenuItem OnClick="async () => await VM.Update(context)">
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Update" Color="Color.Info" Class="mx-1" />
+                        <MudText Color="Color.Info" Class="mx-1">
+                            Edit
+                        </MudText>
+                    </div>
+                </MudMenuItem>
+                <MudMenuItem OnClick="async () => await VM.Delete(context)">
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="mx-1" />
+                        <MudText Color="Color.Error" Class="mx-1">
+                            Delete
+                        </MudText>
+                    </div>
+                </MudMenuItem>
+            </MudMenu>
+        </MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
@@ -71,13 +93,13 @@
 
 @code {
     [Parameter]
-    public T? VM { get; set; }
+    public BaseSimpleCrudLayoutViewModel<T, TF>? VM { get; set; }
 
     [Parameter]
     public RenderFragment? HeaderContentChild { get; set; }
 
     [Parameter]
-    public RenderFragment? RowTemplateChild { get; set; }
+    public RenderFragment<T>? RowTemplateChild { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,5 +119,4 @@
     {
         if (VM != null) VM.PropertyChanged -= OnPropertyChangeHandler;
     }
-
 }
