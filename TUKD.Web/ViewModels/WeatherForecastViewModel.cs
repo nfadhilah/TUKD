@@ -6,48 +6,32 @@ using TUKD.Web.Pages.Weather;
 
 namespace TUKD.Web.ViewModels
 {
-    public class WeatherForecastViewModel : BaseSimpleCrudLayoutViewModel<WeatherForecast, FetchDataForm>
+    public class
+        WeatherForecastViewModel : BaseSimpleCrudLayoutViewModel<WeatherForecast, FetchDataForm, FetchDataFilterForm>
     {
-        private readonly HttpClient _http;
-        private readonly LoadingOverlayViewModel _loadingVm;
-        private readonly IDialogService _dialogService;
-        private readonly ISnackbar _snackbar;
-
-
-        public WeatherForecastViewModel(HttpClient http, LoadingOverlayViewModel loadingVm, IDialogService dialogService,
+        public WeatherForecastViewModel(HttpClient http, IDialogService dialogService,
+            LoadingOverlayViewModel loadingVm,
             ISnackbar snackbar) : base(http, dialogService, loadingVm, snackbar)
         {
-            _http = http;
-            _loadingVm = loadingVm;
-            _dialogService = dialogService;
-            _snackbar = snackbar;
         }
 
-        public override async Task GetAllWithFilter(WeatherForecast? filter = null)
+        protected override async Task GetAllWithFilter(WeatherForecast? filter = null)
         {
-            _loadingVm.IsBusy = true;
+            LoadingVm.IsBusy = true;
             await Task.Delay(2000);
-            var response = await _http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json");
+            var response = await Http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json");
             if (filter is not null && response is not null)
             {
                 response = response.Where(x => x.Summary == filter.Summary).ToList();
             }
 
             MainList = new ObservableCollection<WeatherForecast>(response ?? new List<WeatherForecast>());
-            _loadingVm.IsBusy = false;
+            LoadingVm.IsBusy = false;
         }
 
-        public override async Task ShowFilterForm()
+        protected override async Task DoShowFilterForm()
         {
-            var dialogOptions = new DialogOptions
-            {
-                FullWidth = true,
-                MaxWidth = MaxWidth.Small,
-                DisableBackdropClick = true,
-                CloseButton = true
-            };
-            var dialog = _dialogService.Show<FetchDataFilterForm>("Filter", dialogOptions);
-            var result = await dialog.Result;
+            var result = await FilterDialogResult();
             if (!result.Cancelled)
             {
                 FilterChips.Clear();

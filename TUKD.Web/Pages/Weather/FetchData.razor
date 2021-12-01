@@ -1,7 +1,7 @@
 ﻿@page "/fetchdata"
 @inject WeatherForecastViewModel _vm
 
-<BaseCrudLayout VM="_vm" T="WeatherForecast" TF="FetchDataForm">
+<BaseCrudLayout VM="_vm" T="WeatherForecast" TF="FetchDataForm" TFilter="FetchDataFilterForm">
     <HeaderContentChild>
         <MudTh>Date</MudTh>
         <MudTh>Temp. (C)</MudTh>

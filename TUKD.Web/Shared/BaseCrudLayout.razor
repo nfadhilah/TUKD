@@ -1,6 +1,7 @@
 ﻿@using System.ComponentModel
 @typeparam T where T : class
 @typeparam TF where TF : ComponentBase, ICommonDialogForm<T>
+@typeparam TFilter where TFilter : ComponentBase
 
 <style>
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
@@ -92,8 +93,9 @@
 </MudTable>
 
 @code {
+
     [Parameter]
-    public BaseSimpleCrudLayoutViewModel<T, TF>? VM { get; set; }
+    public BaseSimpleCrudLayoutViewModel<T, TF, TFilter>? VM { get; set; }
 
     [Parameter]
     public RenderFragment? HeaderContentChild { get; set; }
@@ -119,4 +121,5 @@
     {
         if (VM != null) VM.PropertyChanged -= OnPropertyChangeHandler;
     }
+
 }
