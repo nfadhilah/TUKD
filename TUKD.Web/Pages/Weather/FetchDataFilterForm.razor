@@ -15,6 +15,12 @@
                 }
 
             </MudSelect>
+            <MudSelect T="int" Label="Temp (C)" @bind-Value="Model.TemperatureC" For="() => Model.TemperatureC" Variant="Variant.Outlined" Margin="Margin.Dense">
+               @foreach (var item in _tempCDict)
+               {
+                   <MudSelectItem Value="item.Key">@item.Value</MudSelectItem>
+               }
+            </MudSelect>
         </EditForm>
     </DialogContent>
     <DialogActions>
@@ -31,7 +37,14 @@
 
 @code
 {
-    readonly List<string> _summaries = new() { "Balmy", "Bracing", "Chilly", "Freezing" };
+    readonly List<string> _summaries = new() { "- None -", "Balmy", "Bracing", "Chilly", "Freezing" };
+
+    readonly Dictionary<int, string> _tempCDict = new()
+    {
+        [0] = "- None -",
+        [23] = "23"
+    };
+
 
     [CascadingParameter]
     public MudDialogInstance? MudDialogInstance { get; set; }

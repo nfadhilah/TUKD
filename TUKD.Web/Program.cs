@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
-using TUKD.Domain;
 using TUKD.Web;
-using TUKD.Web.Interfaces;
 using TUKD.Web.ViewModels;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

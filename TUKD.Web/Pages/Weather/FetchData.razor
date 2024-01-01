@@ -9,7 +9,7 @@
         <MudTh>Summary</MudTh>
     </HeaderContentChild>
     <RowTemplateChild>
-        <MudTd DataLabel="Date">@context.Date?.ToString("dd/MM/yyyy hh:mm:ss")</MudTd>
+        <MudTd DataLabel="Date"><MudLink Href="#" Underline="Underline.Always">@context.Date?.ToString("dd/MM/yyyy hh:mm:ss")</MudLink></MudTd>
         <MudTd DataLabel="Temperature (C)">@context.TemperatureC</MudTd>
         <MudTd DataLabel="Temperature (F)">@context.TemperatureF</MudTd>
         <MudTd DataLabel="Summary">@context.Summary</MudTd>

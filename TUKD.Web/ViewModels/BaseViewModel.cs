@@ -13,6 +13,20 @@ namespace TUKD.Web.ViewModels
             set => SetValue(ref _isBusy, value);
         }
 
+        private string _title = string.Empty;
+        public string Title
+        {
+            get => _title;
+            set => SetValue(ref _title, value);
+        }
+
+        private string _headerTitle = string.Empty;
+        public string HeaderTitle
+        {
+            get => _headerTitle;
+            set => SetValue(ref _headerTitle, value);
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

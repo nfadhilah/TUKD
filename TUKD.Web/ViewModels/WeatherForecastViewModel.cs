@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net.Http.Json;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using TUKD.Domain;
 using TUKD.Web.Pages.Weather;
@@ -13,6 +15,8 @@ namespace TUKD.Web.ViewModels
             LoadingOverlayViewModel loadingVm,
             ISnackbar snackbar) : base(http, dialogService, loadingVm, snackbar)
         {
+            Title = "Weather";
+            HeaderTitle = "Weather Forecast";
         }
 
         protected override async Task GetAllWithFilter(WeatherForecast? filter = null)
@@ -22,7 +26,12 @@ namespace TUKD.Web.ViewModels
             var response = await Http.GetFromJsonAsync<List<WeatherForecast>>("sample-data/weather.json");
             if (filter is not null && response is not null)
             {
-                response = response.Where(x => x.Summary == filter.Summary).ToList();
+                if (!string.IsNullOrWhiteSpace(filter.Summary))
+                {
+                    response = response.Where(x => x.Summary == filter.Summary).ToList();
+                }
+
+                response = response.Where(x => x.TemperatureC == filter.TemperatureC).ToList();
             }
 
             MainList = new ObservableCollection<WeatherForecast>(response ?? new List<WeatherForecast>());
@@ -36,7 +45,15 @@ namespace TUKD.Web.ViewModels
             {
                 FilterChips.Clear();
                 var data = result.Data as WeatherForecast;
-                FilterChips.Add(data?.Summary ?? "");
+                if (data is not null && !string.IsNullOrWhiteSpace(data.Summary))
+                {
+                    FilterChips.Add(data.Summary);
+                }
+
+                if (data?.TemperatureC != null)
+                {
+                    FilterChips.Add(data?.TemperatureC.ToString() ?? "");
+                }
                 await GetAllWithFilter(data);
             }
         }

@@ -10,14 +10,14 @@
 </style>
 
 
-<PageTitle>Daftar Rekanan</PageTitle>
+<PageTitle>@VM?.Title</PageTitle>
 
 
 <MudText Typo="Typo.h3" Class="my-6">
-    Daftar Rekanan
+    @VM?.HeaderTitle
 </MudText>
 
-<MudTable Items="VM.MainList" Breakpoint="Breakpoint.Sm" MultiSelection="true" Hover="true" @bind-SelectedItems="VM.SelectedItems" Filter="forecast => VM.OnSearch(forecast)" FixedHeader="true">
+<MudTable Items="VM.MainList" Breakpoint="Breakpoint.Sm" MultiSelection="true" Hover="true" @bind-SelectedItems="VM.SelectedItems" Filter="forecast => VM.OnSearch(forecast)" FixedHeader="true" FixedFooter="true" Height="400px">
     <ToolBarContent>
         <MudGrid Class="pa-3">
             <MudItem xs="12" sm="12" md="6">
@@ -93,7 +93,6 @@
 </MudTable>
 
 @code {
-
     [Parameter]
     public BaseSimpleCrudLayoutViewModel<T, TF, TFilter>? VM { get; set; }
 
